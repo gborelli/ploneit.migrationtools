@@ -9,6 +9,7 @@ from DateTime import DateTime
 from Products.Five import BrowserView
 from Products.CMFCore.utils import getToolByName
 
+from Products.PlonePAS.tools.groupdata import GroupDataTool
 from ploneit.migrationtools import config
 
 
@@ -17,24 +18,6 @@ class ExportMembers(BrowserView):
        http://blog.kagesenshi.org/2008/05/exporting-plone30-memberdata-and.html
     """
 
-    # def getItems(self):
-    #     pg = getToolByName(self.context, 'portal_groups')
-    #     for group in pg.listGroups():
-    #         tmp_item = group.__dict__
-    #         tmp_item.update(group.getProperties())
-    #
-    #         # see http://github.com/garbas/collective.blueprint.usersandgroups/
-    #         def item_key(key):
-    #             return '_group_%s' % key
-    #
-    #         item = {}
-    #         for k, v in tmp_item.items():
-    #             item[item_key(k)] = v
-    #         del(tmp_item)
-    #
-    #         #setting roles
-    #         item['_group_roles'] = group.getRoles()
-    #         yield item
     def __call__(self):
         item = {}
         memberdata_tool = getToolByName(self.context, 'portal_memberdata')
@@ -95,6 +78,8 @@ class ExportGroups(BrowserView):
 
             item = {}
             for k, v in tmp_item.items():
+                if isinstance(v, GroupDataTool):
+                    continue
                 item[item_key(k)] = v
             del(tmp_item)
     
