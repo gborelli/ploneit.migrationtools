@@ -46,7 +46,6 @@ class ExportContents(BrowserView):
                     vals = []
                     for i in v:
                         if IBaseObject.providedBy(i):
-                            import ipdb; ipdb.set_trace()
                             vals.append(urlparse(i.absolute_url()).path)
                             continue
                         vals.append(i)
