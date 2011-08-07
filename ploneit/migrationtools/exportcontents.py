@@ -40,18 +40,18 @@ class ExportContents(BrowserView):
                     x[k] = v.ISO()
 
                 if isinstance(v, list):
-                    val = []
+                    vals = []
                     for i in v:
                         if IBaseObject.providedBy(i):
-                            val.append(i.absolute_url())
+                            vals.append(i.absolute_url())
                             continue
-                        val.append(i)
-                    x[k] = val
+                        vals.append(i)
+                    x[k] = vals
 
             data.append(x)
         n_items = len(data)
         exit_mess = 'exportati %d oggetti' % n_items
-        fh = open(config.CONTENTS_FILE,'w')
+        fh = open(config.CONTENTS_FILE, 'w')
         try:
             json.dump(data, fh, indent = 2)
         except:
@@ -59,28 +59,31 @@ class ExportContents(BrowserView):
         fh.close()
         return exit_mess
 
+    def _getObjectData(self, item):
+        schema = item.Schema()
+
+        # Get the schema data:
+        data = dict([(x, item.getField(x).get(item)) \
+                                    for x in schema.keys()])
+
+        # Extend the data with portal type and path:
+        data['_type'] = item.portal_type
+        path = item.getPhysicalPath()[self._root_depth:]
+        data['_path'] = '/'.join(path)
+
+        # And also the workflow state, if any:
+        transitions = []
+        for wf in self.wftool.getWorkflowsFor(item):
+            history = self.wftool.getHistoryOf(wf.getId(), item)
+            transitions.extend([x['action'] \
+                        for x in history if x['action'] is not None])
+
+        data['_transitions'] = transitions
+        return data
+
     def _getItemsRecursive(self, item):
         if IBaseObject.providedBy(item):
-            schema = item.Schema()
-
-            # Get the schema data:
-            data = dict([(x, item.getField(x).get(item)) \
-                                        for x in schema.keys()])
-
-            # Extend the data with portal type and path:
-            data['_type'] = item.portal_type
-            path = item.getPhysicalPath()[self._root_depth:]
-            data['_path'] = '/'.join(path)
-
-            # And also the workflow state, if any:
-            transitions = []
-            for wf in self.wftool.getWorkflowsFor(item):
-                history = self.wftool.getHistoryOf(wf.getId(), item)
-                transitions.extend([x['action'] \
-                            for x in history if x['action'] is not None])
-
-            data['_transitions'] = transitions
-            yield data
+            yield self._getObjectData(item)
 
         if isinstance(item, ObjectManager):
             for each in item.objectValues():
