@@ -34,15 +34,30 @@ class ExportContents(BrowserView):
                 # converto gli oggetti tipo
                 # image e file in semplici url
                 # e le date in formato ISO
-                if k in config.FILE_FIELDNAMES:
+                if v and k in config.FILE_FIELDNAMES:
                     x[k] = v.absolute_url()
                 if isinstance(v, DateTime):
                     x[k] = v.ISO()
+
+                if isinstance(v, list):
+                    val = []
+                    for i in v:
+                        if IBaseObject.providedBy(i):
+                            val.append(i.absolute_url())
+                            continue
+                        val.append(i)
+                    x[k] = val
+
             data.append(x)
+        n_items = len(data)
+        exit_mess = 'exportati %d oggetti' % n_items
         fh = open(config.CONTENTS_FILE,'w')
-        json.dump(data, fh, indent = 2)
+        try:
+            json.dump(data, fh, indent = 2)
+        except:
+            exit_mess = 'errore nella serializzazione json'
         fh.close()
-        return 'ok'
+        return exit_mess
 
     def _getItemsRecursive(self, item):
         if IBaseObject.providedBy(item):
