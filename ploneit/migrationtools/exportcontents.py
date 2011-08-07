@@ -1,4 +1,5 @@
 # -*- encoding: utf8 -*-
+from urlparse import urlparse
 try:
     import json
 except:
@@ -35,7 +36,9 @@ class ExportContents(BrowserView):
                 # image e file in semplici url
                 # e le date in formato ISO
                 if v and k in config.FILE_FIELDNAMES:
-                    x[k] = v.absolute_url()
+                    x[k] = urlparse(v.absolute_url()).path
+                    x[k + '.mimetype'] = v.getContentType()
+                    x[k + '.filename'] = v.getFilename()
                 if isinstance(v, DateTime):
                     x[k] = v.ISO()
 
@@ -43,7 +46,8 @@ class ExportContents(BrowserView):
                     vals = []
                     for i in v:
                         if IBaseObject.providedBy(i):
-                            vals.append(i.absolute_url())
+                            import ipdb; ipdb.set_trace()
+                            vals.append(urlparse(i.absolute_url()).path)
                             continue
                         vals.append(i)
                     x[k] = vals
