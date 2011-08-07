@@ -1,0 +1,39 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="ploneit.migrationtools">
+
+    <include package="Products.CMFPlone" />
+
+    <!-- import fixes -->
+    <browser:page
+        name="importfixing"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        class=".importfixes.ImportFixies"
+        permission="cmf.ManagePortal" />
+
+    <!-- contents export -->
+    <browser:page
+        name="exportcontents-view"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        class=".exportcontents.ExportContents"
+        permission="cmf.ManagePortal" />
+
+    <!-- groups and members import export -->
+    <browser:page
+        name = "exportmembers-view"
+        for = "Products.CMFPlone.interfaces.IPloneSiteRoot"
+        class = ".exportmembers.ExportMembers"
+        permission = "cmf.ManagePortal"
+      />
+
+    <browser:page
+        name = "exportgroups-view"
+        for = "Products.CMFPlone.interfaces.IPloneSiteRoot"
+        class = ".exportmembers.ExportGroups"
+        permission = "cmf.ManagePortal"
+      />
+
+</configure>
