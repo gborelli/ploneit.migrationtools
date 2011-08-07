@@ -32,6 +32,17 @@ class ImportFixies(BrowserView):
                 if el.get(hf[0]):
                     getattr(obj, hf[1])(el.get(hf[0]), mimetype = 'text/html')
 
+            if el.get('relatedItems'):
+                for i in el.get('relatedItems'):
+                    _path = '/'.join(i.split('/')[2:])
+                    related = []
+                    try:
+                        related.append(self.context.restrictedTraverse(str(_path)))
+                    except:
+                        continue
+                    obj.setRelatedItems(related)
+
+
             # see: http://blog.isotoma.com/2011/02/setting-the-modification-date-of-an-archetype-object-in-plone
             od = obj.__dict__
             od['notifyModified'] = lambda *args: None  
