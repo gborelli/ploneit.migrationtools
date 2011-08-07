@@ -4,7 +4,6 @@ try:
 except:
     import simplejson as json
 
-from datetime import datetime
 from DateTime import DateTime
 
 from Products.Five import BrowserView
@@ -21,12 +20,14 @@ class ImportFixies(BrowserView):
 
         data = json.loads(fh.read())
         for el in data:
-            obj = self.context.restrictedTraverse(str(el['_path']))
+            try:
+                obj = self.context.restrictedTraverse(str(el['_path']))
+            except:
+                continue
+
             for df in config.DATE_FIELDS:
                 if el.get(df[0]):
-                    _value = datetime.strptime(el[df[0]], "%Y/%m/%d %H:%M:%S")
-                    value = DateTime(_value.isoformat())
-                    getattr(obj, df[1])(value)
+                    getattr(obj, df[1])(DateTime(el[df[0]]))
             for hf in config.HTML_FIELDS:
                 if el.get(hf[0]):
                     getattr(obj, hf[1])(el.get(hf[0]), mimetype = 'text/html')
